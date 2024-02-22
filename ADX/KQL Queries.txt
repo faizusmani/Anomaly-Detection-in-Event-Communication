@@ -1,0 +1,205 @@
+----- Time Series by Important Parameters -----
+
+1) ['OTCevents'] 
+| count
+
+2) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents'] 
+| summarize EventCount = count() by eventIDCompact
+| sort by EventCount
+
+3) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents'] 
+| summarize EventCount = count() by system
+| sort by EventCount
+
+4) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents'] 
+| summarize EventCount = count() by eventPhase
+| sort by EventCount
+
+5) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents'] 
+| make-series eventCount=count() on timestamp from stime to etime step interval 
+| render timechart
+
+6) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents']  
+| make-series eventCount=count() on timestamp from stime to etime step interval by system
+| render timechart
+
+7) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents']  
+| make-series eventCount=count() on timestamp from stime to etime step interval by eventPhase
+| render timechart
+
+8) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents']  
+| make-series eventCount=count() on timestamp from stime to etime step interval by eventIDCompact
+| render timechart
+
+
+----- Retries -----
+
+1) ['OTCevents'] 
+| where retryCounter > 0
+| count
+
+2) ['OTCevents'] 
+| summarize Retries = count() by retryCounter
+
+3) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents'] 
+| where retryCounter > 0
+| make-series eventCount=count() on timestamp from stime to etime step interval
+
+4) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents'] 
+| where retryCounter > 0
+| summarize RetryCounts = count() by eventIDCompact
+| sort by RetryCounts
+
+5) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents'] 
+| where timestamp  between (stime..etime) 
+| where retryCounter > 0
+| summarize TotalRetries = count() by bin(timestamp, 1h), eventIDCompact, eventPhase 
+| sort by TotalRetries desc 
+| top 10 by TotalRetries
+
+6) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents'] 
+| where timestamp  between (stime..etime) 
+| where retryCounter > 0
+| summarize TotalRetries = count() by bin(timestamp, 1m), eventIDCompact, eventPhase 
+| sort by TotalRetries desc 
+| top 30 by TotalRetries
+
+7) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents']  
+| where  retryCounter > 0
+| make-series eventCount=count() on timestamp from stime to etime step interval by eventPhase
+| render timechart
+
+8) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents']  
+| where retryCounter > 0
+| make-series eventCount=count() on timestamp from stime to etime step interval by system
+| render timechart
+
+9) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents']  
+| where retryCounter > 0
+| make-series eventCount=count() on timestamp from stime to etime step interval by eventIDCompact
+| render timechart
+
+
+----- Latency in Seconds -----
+
+1) ['OTCevents'] 
+| where latencyInSeconds > 0
+| count
+
+2) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents'] 
+| summarize TotalLatency = sum(latencyInSeconds) by eventIDCompact
+| sort by TotalLatency
+
+3) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents'] 
+| make-series eventCount=sum(latencyInSeconds) on timestamp from stime to etime step interval
+
+4) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents'] 
+| where timestamp  between (stime..etime) 
+| summarize LatencySum = sum(latencyInSeconds) by bin(timestamp, 1h), eventIDCompact, eventPhase 
+| sort by LatencySum desc 
+| top 10 by LatencySum
+
+5) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents'] 
+| where timestamp  between (stime..etime) 
+| summarize LatencySum = sum(latencyInSeconds) by bin(timestamp, 1m), eventIDCompact, eventPhase 
+| sort by LatencySum desc 
+| top 30 by LatencySum
+
+
+----- Analysis of Anomalies -----
+
+1) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents'] 
+| make-series eventCount=count() on timestamp from stime to etime step interval 
+| extend (5_baseline, 2_seasonal, 3_trend, 4_residual) = series_decompose(eventCount, 168, 'linefit')
+| render timechart with(title='STL Decomposition', ysplit=panels)
+
+2) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents'] 
+| make-series eventCount=count() on timestamp from stime to etime step interval 
+| extend (anomalies, score, baseline) = series_decompose_anomalies(eventCount, 1.5, 168, 'linefit')
+| render anomalychart with(anomalycolumns=anomalies)
+
+3) let stime = datetime(2023-08-09 14:00);
+let etime = datetime(2023-08-09 20:00);
+['OTCevents'] 
+| where timestamp between (stime..etime) 
+| evaluate autocluster()
+| project-away timestamp, eventIDSteps
+
+4) let stime = datetime(2023-08-09 14:00);
+let etime = datetime(2023-08-09 20:00);
+let s1time = datetime(2023-08-08 00:00);
+let e1time = datetime(2023-08-09 13:58);
+let splitime = (e1time+stime)/2.0;
+['OTCevents'] 
+| where (timestamp between (stime..etime)) or (timestamp between (s1time..e1time)) 
+| extend AB = iff(timestamp>splitime,'Anomaly','Baseline')
+| project-away timestamp, eventIDSteps
+| evaluate diffpatterns(AB,'Anomaly','Baseline')
+
+5) let interval = 1h;
+let stime = datetime(2023-07-31);
+let etime = datetime(2023-08-30);
+['OTCevents'] 
+| extend seg = iff(system=='System2' and eventPhase == 'Contract' and latencyInSeconds != 0,'Problem','Normal') 
+| make-series eventCount=count() on timestamp from stime to etime step interval by seg
+| render timechart
