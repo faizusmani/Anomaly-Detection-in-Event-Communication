@@ -10,4 +10,3 @@
 
 * The PDF file 'FRA_UAS_HIS_Thesis_Faiz_1323197' contains the documentation made on Overleaf using Latex, 'Thesis Colloquium' contains the slides presented during the thesis defense, and 'OTC-Events_Data.csv' is the dataset on which the tasks of the thesis were conducted.
 
-* The 3 datasets ('OTC-Events_Data.csv' and 2 PowerBI related datasets) have not been uploaded on GitHub because of the sensitive info.
